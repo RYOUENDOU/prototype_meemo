@@ -1,0 +1,29 @@
+{
+    "@@locale": "ja",
+    "startScreenTitle": "",
+    "login": "ログイン",
+    "newUser": "初めての方はこちら", 
+    "phoneText": "この端末の電話番号を入力",
+    "catchCopy": "もっと動いて、もっと会おう！",
+    "certification": "電話番号を認証",
+    "certificationCode": "認証番号を入力",
+    "fullName": "姓名",
+    "fullNameHira": "せいめい",
+    "emailAdress": "メールアドレス",
+    "service": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "next": "次へ",
+    "create": "登録",
+    "consent": "同意していただけないと次へ進めません",
+    "serviceConsent": "サービス利用規約に同意する",
+    "policyConsent": "プライバシーポリシーに同意する",
+    "transferTitle": "送迎依頼をする",
+    "@helloWorldOn": {
+        "placeholders": {
+            "date": {
+                "type": "DateTime",
+                "format": "MEd"
+            }
+        }
+    }
+}
