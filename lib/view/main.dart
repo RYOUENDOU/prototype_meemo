@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/start_screen.dart';
+import 'package:meemo/view/start_screen.dart';
 
 void main() {
   runApp(const Main());

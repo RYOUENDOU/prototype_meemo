@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:meemo/login.dart';
+import 'package:meemo/view/login.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/terms_of_Service.dart';
+import 'package:meemo/view/terms_of_Service.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});

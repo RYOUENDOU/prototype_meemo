@@ -1,19 +1,19 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/login.dart';
-import 'dart:developer';
+import 'package:meemo/view/privacy_policy.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // import 'package:meemo/gen/assets.gen.dart';
 
-class PrivacyPolicy extends StatelessWidget {
-  const PrivacyPolicy({super.key});
+class TermsOfService extends StatelessWidget {
+  const TermsOfService({super.key});
 
   @override
   Widget build(BuildContext context) {
     //ローカライズクラスを取得
     final l10n = L10n.of(context);
     final controller = WebViewController()
-      ..loadRequest(Uri.parse('https://meemo.jp/users/mee/privacy/'))
+      ..loadRequest(Uri.parse('https://meemo.jp/meemo/terms/'))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -30,7 +30,7 @@ class PrivacyPolicy extends StatelessWidget {
             log('error: $error');
           },
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://meemo.jp')) {
+            if (request.url.startsWith('https://meemo.jp/')) {
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
@@ -43,7 +43,7 @@ class PrivacyPolicy extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.background,
         centerTitle: true,
         title: Text(
-          l10n.privacyPolicy,
+          l10n.service,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
@@ -72,7 +72,7 @@ class PrivacyPolicy extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 50.0),
                     child: Text(
-                      l10n.policyConsent,
+                      l10n.serviceConsent,
                       style: const TextStyle(
                         fontSize: 18.0,
                       ),
@@ -91,7 +91,7 @@ class PrivacyPolicy extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const Login(),
+                          builder: (context) => const PrivacyPolicy(),
                         ),
                       );
                     },
