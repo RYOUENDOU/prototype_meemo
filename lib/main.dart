@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meemo/view/start_screen.dart';
 
 void main() {
-  runApp(const Main());
+  const app = Main();
+  const scope = ProviderScope(child: app);
+  runApp(scope);
 }
 
 class Main extends StatelessWidget {
