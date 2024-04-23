@@ -3,9 +3,5 @@ class Address {
   final String city;
   final String street;
 
-  Address({
-    required this.prefecture,
-    required this.city,
-    required this.street,
-  });
+  Address({required this.prefecture, required this.city, required this.street});
 }
