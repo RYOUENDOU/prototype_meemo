@@ -19,7 +19,7 @@ class Home extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('現在位置'),
+        title: const Text('現在'),
       ),
       body: FutureBuilder(
         future:
