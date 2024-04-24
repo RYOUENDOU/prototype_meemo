@@ -140,7 +140,7 @@ class _CertificationState extends State<Certification> {
                   //仮でMapに遷移
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const Home(),
+                      builder: (context) => Home(),
                     ),
                   );
                 },

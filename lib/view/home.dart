@@ -5,84 +5,148 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meemo/view/geocoding.dart';
 import 'package:meemo/model/address.dart';
-// import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:geocoding/geocoding.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
-  @override
-  State<Home> createState() => _HomeState();
-}
+class Home extends ConsumerWidget {
+  final Key? key;
+  Home({this.key}) : super(key: key);
 
-class _HomeState extends State<Home> {
   //遅延初期化
   late GoogleMapController mapController;
   //位置変数
   LatLng? _initialPosition;
 
   @override
-  void initState() {
-    super.initState();
-    _getUserLocation();
-  }
-
-  //位置情報の許可確認
-  void _getUserLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // ユーザーが位置情報へのアクセスを拒否した場合の処理
-        return;
-      }
-    }
-
-    //ユーザーの現在地取得
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _initialPosition = LatLng(position.latitude, position.longitude);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // デバイスの高さを取得する
     double screenHeight = MediaQuery.of(context).size.height;
-    // デバイスの高さを取得する
-    // double screenWidth = MediaQuery.of(context).size.width;
-
-    //ローカライズクラスを取得
-    // final l10n = L10n.of(context);
+    // デバイスの横幅を取得する
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: _initialPosition == null
-          ? Center(child: CircularProgressIndicator())
-          : Stack(
+      appBar: AppBar(
+        title: const Text('現在位置'),
+      ),
+      body: FutureBuilder(
+        future: Future.wait([
+          ref
+              .read(geocodingNotifireProvider.notifier)
+              .getCurrentAddress(), //アドレス取得
+          // ref
+          //     .read(geocodingNotifireProvider.notifier)
+          //     .getInitialPosition(), //経度緯度取得
+        ]),
+        builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                children: [
+                  Text(
+                    snapshot.error.toString(),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          List<dynamic> results = snapshot.data ?? [];
+          Address address = results[0] as Address; //アドレス
+          // _initialPosition = results[1] as LatLng; //緯度経度
+          if (snapshot.hasData) {
+            final boardingPlaceTextController = TextEditingController(
+                text: address.prefecture + address.city + address.street);
+
+            return Stack(
               children: [
-                Column(
-                  children: [
-                    Container(
-                      child: _googleMap(),
-                      height: screenHeight * 0.7,
-                      width: double.infinity,
+                // マップを上部に表示
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: screenHeight * 0.28, // フォームの高さを指定
+                  child: _googleMap(ref),
+                ),
+                // 送迎依頼フォームを下部に表示
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: screenHeight * 0.33,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(60)),
                     ),
-                    Transform.translate(
-                      // e.g: vertical negative margin
-                      offset: const Offset(0, -10), //仮
-                      child: Container(
-                        height: screenHeight * 0.3,
-                        width: double.infinity,
-                        child: _card(),
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 60.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 18.0),
+                            child: Text(
+                              '送迎を依頼する',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          '乗車地',
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextField(
+                          controller: boardingPlaceTextController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          '目的地',
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextField(
+                          controller: boardingPlaceTextController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                )
+                  ),
+                ),
               ],
-            ),
+            );
+          } else {
+            return const Column(
+              children: [
+                Center(
+                  child: Text('データが存在しません'),
+                ),
+              ],
+            );
+          }
+        },
+      ),
     );
   }
 
   //Map表示
-  Widget _googleMap() {
+  Widget _googleMap(WidgetRef ref) {
     return Stack(
       children: [
         GoogleMap(
@@ -90,12 +154,34 @@ class _HomeState extends State<Home> {
             //初期化
             mapController = controller;
           },
-          initialCameraPosition: CameraPosition(
-            target: _initialPosition!,
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(35.944571, 136.186228),
             zoom: 14.0,
           ),
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
+          onCameraMove: (CameraPosition newPosition) async {
+            //地図が移動したときの処理
+            Placemark placemark = await ref
+                .read(geocodingNotifireProvider.notifier)
+                .getPlacemarkFromPosition(
+                    latitude: newPosition.target.latitude,
+                    longitude: newPosition.target.longitude);
+
+            //取得した住所を乗車地のTextFieldに表示する
+            Address address = Address(
+              prefecture: placemark.administrativeArea ?? '',
+              city: placemark.locality ?? '',
+              street: placemark.street ?? '',
+            );
+
+            ref
+                .read(geocodingNotifireProvider.notifier)
+                .setBoardingPlaceAddress(address);
+
+            //これにより、getPlacemarkFromPositionの呼び出しと、
+            //setBoardingPlaceAddressでTextFieldに住所が表示される
+          },
         ),
         Positioned(
           right: 10,
@@ -133,196 +219,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-//カード表示
-Widget _card() {
-  return const Card(
-    child: Column(
-      children: [
-        Padding(padding: EdgeInsets.all(10)),
-        Text(
-          '送迎依頼',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Form(
-          child: Column(
-            children: [
-              Text('乗車時', textAlign: TextAlign.left),
-              SizedBox(
-                width: 300, //仮
-                child: TextField(
-                  decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 0.5)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 0.5)),
-                      filled: true,
-                      hintText: '乗車地を設定'),
-                ),
-              ),
-              Text('目的地'),
-              SizedBox(
-                // height: 20.0,
-                width: 300,
-                child: TextField(
-                  decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 0.5)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 0.5)),
-                      filled: true,
-                      hintText: '目的地を設定'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-    // color: Color(0xFFFFFFFF),
-  );
-}
-
-
-// class Home extends ConsumerWidget {
-//   const Home({Key? key});
-//   //遅延初期化
-//   late GoogleMapController mapController;
-//   //位置変数
-//   LatLng? _initialPosition;
-//   // State<Home> createState() => _HomeState();
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(''),
-//       ),
-//       body: FutureBuilder(
-//         future:
-//             ref.read(geocodingNotifireProvider.notifier).getCurrentAddress(),
-//         builder: (BuildContext context, AsyncSnapshot<Address> snapshot) {
-//           if (snapshot.connectionState != ConnectionState.done) {
-//             return const Center(
-//               child: CircularProgressIndicator(),
-//             );
-//           }
-//           if (snapshot.hasError) {
-//             return Center(
-//               child: Column(
-//                 children: [
-//                   Text(
-//                     snapshot.error.toString(),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           }
-//           if (snapshot.hasData) {
-//             final prefectureTextController =
-//                 TextEditingController(text: snapshot.data!.prefecture);
-//             final cityTextController =
-//                 TextEditingController(text: snapshot.data!.city);
-//             final streetTextController =
-//                 TextEditingController(text: snapshot.data!.street);
-//             return Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   _googleMap(),
-//                   const Text('都道府県'),
-//                   TextField(
-//                     controller: prefectureTextController,
-//                     decoration:
-//                         const InputDecoration(border: OutlineInputBorder()),
-//                   ),
-//                   const Text('市区町村'),
-//                   TextField(
-//                     controller: cityTextController,
-//                     decoration:
-//                         const InputDecoration(border: OutlineInputBorder()),
-//                   ),
-//                   const Text('番地'),
-//                   TextField(
-//                     controller: streetTextController,
-//                     decoration:
-//                         const InputDecoration(border: OutlineInputBorder()),
-//                   ),
-//                 ],
-//               ),
-//             );
-//           } else {
-//             return const Column(
-//               children: [
-//                 Center(
-//                   child: Text('データが存在しません'),
-//                 ),
-//               ],
-//             );
-//           }
-//         },
-//       ),
-//     );
-//   }
-
-//   //Map表示
-//   Widget _googleMap() {
-//     return Stack(
-//       children: [
-//         GoogleMap(
-//           onMapCreated: (controller) {
-//             //初期化
-//             mapController = controller;
-//           },
-//           initialCameraPosition: CameraPosition(
-//             target: _initialPosition!,
-//             zoom: 14.0,
-//           ),
-//           myLocationEnabled: true,
-//           myLocationButtonEnabled: false,
-//         ),
-//         Positioned(
-//           right: 10,
-//           bottom: 50,
-//           child: _goToCurrentPositionButon(),
-//         ),
-//       ],
-//     );
-//   }
-
-//   //現在地ボタン押下
-//   Widget _goToCurrentPositionButon() {
-//     return ElevatedButton(
-//       style: ElevatedButton.styleFrom(
-//         minimumSize: const Size(55, 55),
-//         backgroundColor: Colors.white,
-//         foregroundColor: Colors.black,
-//         shape: const CircleBorder(),
-//       ),
-//       onPressed: () async {
-//         //現在地を取得してmap移動
-//         Position currentPosition = await Geolocator.getCurrentPosition(
-//             desiredAccuracy: LocationAccuracy.high);
-//         mapController.animateCamera(
-//           CameraUpdate.newCameraPosition(
-//             CameraPosition(
-//               target:
-//                   LatLng(currentPosition.latitude, currentPosition.longitude),
-//               zoom: 14,
-//             ),
-//           ),
-//         );
-//       },
-//       child: const Icon(Icons.near_me_outlined),
-//     );
-//   }
-// }
-
-
