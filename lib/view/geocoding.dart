@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -100,7 +102,7 @@ class GeocodingNotifire extends _$GeocodingNotifire {
     return address;
   }
 
-//マップが移動された時にをセットするメソッド
+  //マップが移動された時に住所をセットするメソッド
   void setBoardingPlaceAddress(Address address) {
     _boardingPlaceAddress = address;
   }
