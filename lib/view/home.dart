@@ -1,14 +1,15 @@
 import 'dart:ffi' as prefix;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/widgets.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:meemo/view/geocoding.dart';
+import 'package:meemo/model/geocoding.dart';
 import 'package:meemo/model/address.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 class Home extends ConsumerWidget {
   final Key? key;
@@ -22,6 +23,9 @@ class Home extends ConsumerWidget {
   late TextEditingController _boardingPlaceController;
   late TextEditingController _Destination;
 
+//textFieldのタップを感知
+  final FocusNode focusNode = FocusNode();
+
   // Future<void> _loadInitialPosition() async {
   //   final currentPosition = await Geolocator.getCurrentPosition();
   //   _initialPosition =
@@ -34,6 +38,11 @@ class Home extends ConsumerWidget {
   //   _initialPosition = currentPosition;
   // }
 
+// @override
+// void initState() {
+//   super.();
+// }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 初期化ロジックをここに移動する
@@ -45,10 +54,94 @@ class Home extends ConsumerWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     // デバイスの横幅を取得する
     double screenWidth = MediaQuery.of(context).size.width;
+
+    int count = 0;
+
+    //textFieldがタップされたらボトムシートを表示する
+    focusNode.addListener(() {
+      FocusScope.of(context).requestFocus(FocusNode());
+      if (focusNode.hasFocus) {
+        _showBottomSheet(context, screenHeight, screenWidth, ref);
+      }
+    });
+
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text('meemo'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            // scaffoldKey.currentState?.openDrawer();
+            Navigator.of(context).pop();
+          },
+        ),
       ),
+
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            // const DrawerHeader(
+            //   child: Text('Drawer Header'),
+            //   decoration: BoxDecoration(
+            //     color: Colors.blue,
+            //   ),
+            // ),
+            ListTile(
+              title: const Text('お知らせ'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('お気に入りスポット'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('支払い方法'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('よくある質問'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('問い合わせ'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              // isThreeLine: true,
+              title: const Text('・meemoについて'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('・meemoについて'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+            ListTile(
+              title: const Text('ドライバーモード'),
+              onTap: () {
+                // メニューアイテムがタップされたときの処理
+              },
+            ),
+          ],
+        ),
+      ),
+      // 他のプロパティ
       body: FutureBuilder(
         future: Future.wait([
           ref
@@ -79,7 +172,10 @@ class Home extends ConsumerWidget {
           List<dynamic> results = snapshot.data ?? [];
           Address address = results[0] as Address; //アドレス
           // _initialPosition = const LatLng(35.944571, 136.186228); //緯度経度
-          if (snapshot.hasData) {
+          count++;
+          if (count == 1) {
+            // }
+            // if (snapshot.hasData) {
             _boardingPlaceController = TextEditingController(
                 text: address.prefecture + address.city + address.street);
             _Destination = TextEditingController();
@@ -112,21 +208,15 @@ class Home extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Align(
+                        const Align(
                           alignment: Alignment.center,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 18.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                _showBottomSheet(
-                                    context, screenHeight, screenWidth);
-                              },
-                              child: const Text(
-                                '送迎を依頼する',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 20,
-                                ),
+                            padding: EdgeInsets.symmetric(vertical: 18.0),
+                            child: Text(
+                              '送迎を依頼する',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 20,
                               ),
                             ),
                           ),
@@ -138,47 +228,20 @@ class Home extends ConsumerWidget {
                           ),
                         ),
                         TextField(
+                          focusNode: focusNode,
                           controller: _boardingPlaceController,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // const Text(
-                        //   '目的地',
-                        //   style: TextStyle(
-                        //     fontSize: 18,
-                        //   ),
-                        // ),
-                        // TextField(
-                        //   controller: _Destination,
-                        //   decoration: const InputDecoration(
-                        //     border: OutlineInputBorder(),
-                        //   ),
-                        // ),
-                        GestureDetector(
-                          onTap: () {
-                            // TextFieldがタップされたときにBottomSheetを表示する
-                            showModalBottomSheet(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  height: 500, // BottomSheetの高さを設定
-                                  color: Colors.white,
-                                  child: const Center(
-                                    child: Text('BottomSheet'),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: const TextField(
-                            decoration: InputDecoration(
-                              hintText: 'タップしたらモーダル表示させたい...',
-                              border: OutlineInputBorder(),
-                            ),
+                        TextField(
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                            hintText: 'タップしたら詳細設定を表示',
+                            border: OutlineInputBorder(),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -214,11 +277,12 @@ class Home extends ConsumerWidget {
                   zoom: 14.0,
                 )
               : const CameraPosition(
-                  target: LatLng(0, 0), // デフォルトの緯度経度、例えば原点を設定
+                  target: LatLng(0, 0), // デフォルトの緯度経度
                   zoom: 14.0,
                 ),
+
           padding: EdgeInsets.fromLTRB(0, 0, 0, screenHeight * 0.35),
-          markers: _createMarker(),
+          // markers: _createMarker(),
           mapType: MapType.normal,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
@@ -312,14 +376,65 @@ class ButtonColorNotifier extends ChangeNotifier {
   }
 }
 
-void _showBottomSheet(
-    BuildContext context, double screenHeight, double screenWidth) {
-  Color _buttonColor = const Color.fromARGB(255, 246, 246, 246);
-  final addressList = [
+_showBottomSheet(BuildContext context, double screenHeight, double screenWidth,
+    WidgetRef ref) {
+  // Color _buttonColor = const Color.fromARGB(255, 246, 246, 246);
+  final buttonStateProvider = StateProvider((ref) => false);
+  bool buttonState = ref.watch(buttonStateProvider);
+  ElevatedButton button;
+  var selectedIndex = -1;
+  var aa = "";
+  const addressList = [
     '自宅\n京都府舞鶴市引土258−2',
     '舞鶴駅\n京都府舞鶴市引土258−2',
     '舞鶴赤十字病院\n都府舞鶴市引土258−2',
   ];
+
+  print(buttonState);
+  if (buttonState) {
+    button = ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 0,
+        backgroundColor: const Color(0xFF763939),
+        fixedSize: (const Size(130, 18)),
+      ),
+      onPressed: () {
+        // ボタンが押されたときの処理
+        ref.read(buttonStateProvider.notifier).state = !buttonState;
+      },
+      child: const Text(
+        '履歴',
+        style: TextStyle(
+          fontSize: 15,
+        ),
+      ),
+    );
+  } else {
+    button = ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        elevation: 0,
+        backgroundColor: const Color.fromARGB(255, 253, 253, 253),
+        fixedSize: (const Size(130, 18)),
+      ),
+      onPressed: () {
+        // ボタンが押されたときの処理
+        ref.read(buttonStateProvider.notifier).state = !buttonState;
+      },
+      child: const Text(
+        '履歴',
+        style: TextStyle(
+          fontSize: 15,
+        ),
+      ),
+    );
+  }
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -334,6 +449,7 @@ void _showBottomSheet(
             const Padding(
               padding: EdgeInsets.only(top: 40.0, left: 60.0, right: 60.0),
               child: TextField(
+                // controller: _boardingPlaceController,
                 decoration: InputDecoration(
                     border: OutlineInputBorder(), hintText: "乗車地を選択"),
               ),
@@ -361,36 +477,40 @@ void _showBottomSheet(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  button,
+
+                  //  ElevatedButton(
+                  //   style: ElevatedButton.styleFrom(
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(10),
+                  //     ),
+                  //     elevation: 0,
+                  //     backgroundColor: _buttonColor,
+                  //     fixedSize: (const Size(130, 18)),
+                  //   ),
+                  //   onPressed: () {
+                  //     // ボタンが押されたときの処理
+                  //   },
+                  //   child: const Text(
+                  //     '履歴',
+                  //     style: TextStyle(
+                  //       fontSize: 15,
+                  //     ),
+                  //   ),
+                  // ),
+
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       elevation: 0,
-                      backgroundColor: _buttonColor,
+                      backgroundColor: const Color.fromARGB(255, 253, 253, 253),
                       fixedSize: (const Size(130, 18)),
                     ),
                     onPressed: () {
                       // ボタンが押されたときの処理
-                    },
-                    child: const Text(
-                      '履歴',
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
-                      backgroundColor: _buttonColor,
-                      fixedSize: (const Size(130, 18)),
-                    ),
-                    onPressed: () {
-                      // ボタンが押されたときの処理
+                      // _list("お気に入り");
                     },
                     child: const Text(
                       'お気に入り',
@@ -405,14 +525,15 @@ void _showBottomSheet(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       elevation: 0,
-                      backgroundColor: _buttonColor,
+                      backgroundColor: const Color.fromARGB(255, 253, 253, 253),
                       fixedSize: (const Size(130, 18)),
                     ),
                     onPressed: () {
                       // ボタンが押されたときの処理
+                      Navigator.of(context).pop();
                     },
                     child: const Text(
-                      'Map',
+                      'MAP',
                       style: TextStyle(
                         fontSize: 15,
                       ),
@@ -427,11 +548,71 @@ void _showBottomSheet(
                 itemCount: addressList.length,
                 itemBuilder: (context, index) {
                   return ListTile(
+                    selected: selectedIndex == index ? true : false,
+                    selectedTileColor: const Color.fromRGBO(145, 50, 50, 1),
+                    onTap: () {
+                      print("${addressList[index]} is tapped.");
+                      aa = addressList[index];
+                    },
                     title: Text(addressList[index]),
                   );
                 },
               ),
             ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
+              child: Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    elevation: 0,
+                    backgroundColor: const Color.fromRGBO(0, 36, 195, 1),
+                    foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
+                    fixedSize: (const Size(400, 50)),
+                  ),
+                  onPressed: () {
+                    // ボタンが押されたときの処理
+                    // _list("お気に入り");
+                  },
+                  child: const Text(
+                    '依頼する',
+                    style: TextStyle(
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(
+                    top: 10.0, left: 10.0, right: 10.0, bottom: 30),
+                child: Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(),
+                      ),
+                      elevation: 0,
+                      foregroundColor: const Color.fromRGBO(0, 36, 195, 1),
+                      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+                      fixedSize: (const Size(400, 50)),
+                    ),
+                    onPressed: () {
+                      // ボタンが押されたときの処理
+                      // _list("お気に入り");
+                    },
+                    child: const Text(
+                      'キャンセル',
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                )),
           ],
         ),
       );
@@ -439,34 +620,15 @@ void _showBottomSheet(
   );
 }
 
-class TextFieldWithBottomSheet extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // TextFieldがタップされたときにBottomSheetを表示する
-        showBottomSheet(
-          context: context,
-          builder: (BuildContext context) {
-            return Container(
-              height: 200, // BottomSheetの高さを設定
-              color: Colors.white,
-              child: const Center(
-                child: Text('BottomSheet'),
-              ),
-            );
-          },
-        );
-      },
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: InputDecoration(
-            hintText: 'Tap here to show BottomSheet',
-            border: OutlineInputBorder(),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _list(String type){
+//   var addressList = [];
+//   if (type == "お気に入り"){
+// addressList =  [
+//     '自宅\n京都府舞鶴市引土258−2',
+//     '舞鶴駅\n京都府舞鶴市引土258−2',
+//     '舞鶴赤十字病院\n都府舞鶴市引土258−2',
+//   ];
+//   }
+//   return addressList;
+// }
+
