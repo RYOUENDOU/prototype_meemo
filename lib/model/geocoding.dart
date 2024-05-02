@@ -77,16 +77,6 @@ class GeocodingNotifire extends _$GeocodingNotifire {
     return address;
   }
 
-  // 緯度経度のみ取得するメソッド
-  Future<LatLng> getInitialPosition() async {
-    //緯度経度取得
-    final currentPosition = await getCurrentPosition();
-    // 緯度と経度からLatLngオブジェクトを作成して返す
-    LatLng initialPosition =
-        LatLng(currentPosition.latitude, currentPosition.longitude);
-    return initialPosition;
-  }
-
   //マップが移動された時に住所を取得するメソッド
   Future<Address> getAddressInfoFromPosition(
       {required double latitude, required double longitude}) async {
