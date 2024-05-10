@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/certification.dart';
+import 'package:meemo/view/certification.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

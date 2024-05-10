@@ -1,19 +1,19 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/privacy_policy.dart';
+import 'package:meemo/view/login.dart';
+import 'dart:developer';
 import 'package:webview_flutter/webview_flutter.dart';
 // import 'package:meemo/gen/assets.gen.dart';
 
-class TermsOfService extends StatelessWidget {
-  const TermsOfService({super.key});
+class PrivacyPolicy extends StatelessWidget {
+  const PrivacyPolicy({super.key});
 
   @override
   Widget build(BuildContext context) {
     //ローカライズクラスを取得
     final l10n = L10n.of(context);
     final controller = WebViewController()
-      ..loadRequest(Uri.parse('https://meemo.jp/meemo/terms/'))
+      ..loadRequest(Uri.parse('https://meemo.jp/users/mee/privacy/'))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -30,7 +30,7 @@ class TermsOfService extends StatelessWidget {
             log('error: $error');
           },
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://meemo.jp/')) {
+            if (request.url.startsWith('https://meemo.jp')) {
               return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
@@ -43,7 +43,7 @@ class TermsOfService extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.background,
         centerTitle: true,
         title: Text(
-          l10n.service,
+          l10n.privacyPolicy,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
@@ -72,7 +72,7 @@ class TermsOfService extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 50.0),
                     child: Text(
-                      l10n.serviceConsent,
+                      l10n.policyConsent,
                       style: const TextStyle(
                         fontSize: 18.0,
                       ),
@@ -91,7 +91,7 @@ class TermsOfService extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const PrivacyPolicy(),
+                          builder: (context) => const Login(),
                         ),
                       );
                     },

@@ -86,8 +86,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/login.dart';
-import 'package:meemo/Account/create_account.dart';
+import 'package:meemo/view/login.dart';
+import 'package:meemo/view/create_account.dart';
 
 // import 'package:meemo/gen/assets.gen.dart';
 

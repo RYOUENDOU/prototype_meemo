@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:meemo/home.dart';
+import 'package:meemo/view/home.dart';
 
 class Certification extends StatefulWidget {
   const Certification({super.key});
@@ -140,7 +140,7 @@ class _CertificationState extends State<Certification> {
                   //仮でMapに遷移
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const Home(),
+                      builder: (context) => Home(),
                     ),
                   );
                 },
