@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-meemo-dev-182735-authRole",
+      "UnauthRoleArn": "arn:aws:iam::851725407102:role/amplify-meemo-dev-182735-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::851725407102:role/amplify-meemo-dev-182735-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-meemo-dev-182735-deployment",
+      "UnauthRoleName": "amplify-meemo-dev-182735-unauthRole",
+      "StackName": "amplify-meemo-dev-182735",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:851725407102:stack/amplify-meemo-dev-182735/5f203480-0de6-11ef-a504-0eb250581a03",
+      "AmplifyAppId": "d2npsf2pk5c1ge"
+    }
+  }
+}
