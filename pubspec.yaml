@@ -49,6 +49,9 @@ dependencies:
   flutter_secure_storage: ^4.2.1
   freezed: ^2.5.2
   google_places_flutter: ^2.0.8
+  amplify_flutter: ^0.5.1
+  amplify_datastore: ^0.5.1
+  amplify_api: ^0.5.1
 
 dev_dependencies:
   flutter_test:

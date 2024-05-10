@@ -9,6 +9,8 @@ import 'package:meemo/model/address.dart';
 import 'package:geocoding/geocoding.dart';
 // import 'package:google_places_flutter/google_places_flutter.dart';
 // import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 
 // ignore: must_be_immutable
 class Home extends ConsumerWidget {
